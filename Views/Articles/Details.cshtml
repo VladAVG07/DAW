@@ -1,0 +1,24 @@
+@model Lab06.ViewModels.ArticleViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>@Model.Title</h1>
+
+<p class="text-muted">
+    @Model.CategoryName · @Model.AuthorName · @Model.PublishedAt.ToString("dd.MM.yyyy")
+</p>
+
+@if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+{
+    <img src="@Model.ImagePath" alt="@Model.Title" class="img-fluid mb-3" style="max-height: 320px;" />
+}
+
+<p>@Model.Content</p>
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</div>

@@ -1,0 +1,54 @@
+@model Lab06.ViewModels.EditArticleViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="ExistingImagePath" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="6"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UserId" class="form-label"></label>
+        <select asp-for="UserId" asp-items="Model.Users" class="form-select">
+            <option value="">Fara autor</option>
+        </select>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+    {
+        <div class="mb-3">
+            <p class="mb-1">Imagine curenta:</p>
+            <img src="@Model.ExistingImagePath" alt="Imagine articol" style="max-height: 180px;" />
+        </div>
+    }
+
+    <div class="mb-3">
+        <label asp-for="Upload" class="form-label">Schimba imagine</label>
+        <input asp-for="Upload" class="form-control" type="file" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>

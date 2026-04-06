@@ -1,0 +1,51 @@
+@model List<ArticleViewModel>
+
+@{
+    ViewData["Title"] = "Articole";
+    var currentPage = (int?)ViewBag.CurrentPage ?? 1;
+    var totalPages = (int?)ViewBag.TotalPages ?? 1;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Articole</h1>
+    <a asp-action="Create" class="btn btn-primary">Adauga articol</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nu exista articole.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var article in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrWhiteSpace(article.ImagePath))
+                    {
+                        <img src="@article.ImagePath" class="card-img-top" alt="@article.Title" style="height: 220px; object-fit: cover;" />
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@article.Title</h5>
+                        <p class="card-text text-muted mb-2">
+                            @article.CategoryName · @article.AuthorName · @article.PublishedAt.ToString("dd.MM.yyyy")
+                        </p>
+                        <p class="card-text">@(article.Content.Length > 140 ? article.Content[..140] + "..." : article.Content)</p>
+                        <div class="mt-auto d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@article.Id" class="btn btn-outline-primary btn-sm">Detalii</a>
+                            <a asp-action="Edit" asp-route-id="@article.Id" class="btn btn-outline-secondary btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@article.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Index" asp-route-page="@(currentPage - 1)" class="btn btn-outline-secondary @(currentPage <= 1 ? "disabled" : string.Empty)">Previous</a>
+        <span class="align-self-center">Pagina @currentPage din @totalPages</span>
+        <a asp-action="Index" asp-route-page="@(currentPage + 1)" class="btn btn-outline-secondary @(currentPage >= totalPages ? "disabled" : string.Empty)">Next</a>
+    </div>
+}

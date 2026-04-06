@@ -1,0 +1,27 @@
+@model Lab06.ViewModels.ArticleViewModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h4>Esti sigur ca vrei sa stergi acest articol?</h4>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Titlu</dt>
+    <dd class="col-sm-10">@Model.Title</dd>
+
+    <dt class="col-sm-2">Categorie</dt>
+    <dd class="col-sm-10">@Model.CategoryName</dd>
+
+    <dt class="col-sm-2">Autor</dt>
+    <dd class="col-sm-10">@Model.AuthorName</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
