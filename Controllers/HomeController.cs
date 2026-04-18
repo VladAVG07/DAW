@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics;
 using Lab06.Models;
 using Lab06.Services;
 using Lab06.ViewModels;

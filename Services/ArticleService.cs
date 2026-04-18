@@ -1,6 +1,7 @@
 using Lab06.Data;
 using Lab06.Models;
 using Lab06.ViewModels;
+using Lab06.Data;
 
 namespace Lab06.Services;
 
@@ -49,14 +50,19 @@ public class ArticleService : IArticleService
         return article is null ? null : MapToArticleViewModel(article);
     }
 
-    public async Task CreateAsync(CreateArticleViewModel viewModel, CancellationToken cancellationToken = default)
+    public async Task<Article?> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _unitOfWork.Articles.GetByIdAsync(id, cancellationToken);
+    }
+
+    public async Task CreateAsync(CreateArticleViewModel viewModel, string? authorId, CancellationToken cancellationToken = default)
     {
         var article = new Article
         {
             Title = viewModel.Title,
             Content = viewModel.Content,
             CategoryId = viewModel.CategoryId,
-            UserId = viewModel.UserId,
+            AuthorId = authorId,
             PublishedAt = DateTime.Now,
             ImagePath = await SaveImageAsync(viewModel.Upload, cancellationToken)
         };
@@ -79,7 +85,6 @@ public class ArticleService : IArticleService
             Title = article.Title,
             Content = article.Content,
             CategoryId = article.CategoryId,
-            UserId = article.UserId,
             ExistingImagePath = article.ImagePath
         };
 
@@ -97,7 +102,6 @@ public class ArticleService : IArticleService
         article.Title = viewModel.Title;
         article.Content = viewModel.Content;
         article.CategoryId = viewModel.CategoryId;
-        article.UserId = viewModel.UserId;
 
         var newImagePath = await SaveImageAsync(viewModel.Upload, cancellationToken);
         article.ImagePath = newImagePath ?? viewModel.ExistingImagePath;
@@ -149,7 +153,7 @@ public class ArticleService : IArticleService
             Content = article.Content,
             PublishedAt = article.PublishedAt,
             CategoryName = article.Category?.Name ?? "N/A",
-            AuthorName = article.User?.Name ?? "N/A",
+            AuthorName = article.Author?.FullName ?? "N/A",
             ImagePath = article.ImagePath
         };
     }

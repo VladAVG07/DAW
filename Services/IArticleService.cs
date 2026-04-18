@@ -1,3 +1,4 @@
+using Lab06.Models;
 using Lab06.ViewModels;
 
 namespace Lab06.Services;
@@ -9,7 +10,8 @@ public interface IArticleService
     Task<int> CountAsync(CancellationToken cancellationToken = default);
     Task<List<ArticleViewModel>> GetLatestAsync(int count, CancellationToken cancellationToken = default);
     Task<ArticleViewModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-    Task CreateAsync(CreateArticleViewModel viewModel, CancellationToken cancellationToken = default);
+    Task<Article?> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task CreateAsync(CreateArticleViewModel viewModel, string? authorId, CancellationToken cancellationToken = default);
     Task<EditArticleViewModel?> GetEditViewModelAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(EditArticleViewModel viewModel, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);

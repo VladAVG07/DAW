@@ -1,15 +1,47 @@
 using Lab06.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lab06.Data;
 
 public static class SeedData
 {
-    public static void Initialize(AppDbContext context)
+    public static async Task InitializeAsync(IServiceProvider serviceProvider)
     {
-        context.Database.Migrate();
+        var context = serviceProvider.GetRequiredService<AppDbContext>();
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        if (context.Categories.Any() || context.Articles.Any())
+        await context.Database.MigrateAsync();
+
+        string[] roleNames = ["Admin", "User"];
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        var adminEmail = "admin@newsportal.com";
+        if (await userManager.FindByEmailAsync(adminEmail) is null)
+        {
+            var admin = new ApplicationUser
+            {
+                UserName = "admin",
+                Email = adminEmail,
+                FullName = "Administrator",
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(admin, "Admin@123");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+
+        if (await context.Categories.AnyAsync() || await context.Articles.AnyAsync())
         {
             return;
         }
@@ -19,11 +51,10 @@ public static class SeedData
         var culture = new Category { Name = "Cultura" };
         var actualitate = new Category { Name = "Actualitate" };
 
-        context.Categories.AddRange(technology, sport, culture, actualitate);
-        context.SaveChanges();
+        await context.Categories.AddRangeAsync(technology, sport, culture, actualitate);
+        await context.SaveChangesAsync();
 
-        context.Articles.AddRange(
-            // Tehnologie
+        await context.Articles.AddRangeAsync(
             new Article
             {
                 Title = "Universitatile testeaza platforme AI pentru predare si evaluare",
@@ -45,7 +76,6 @@ public static class SeedData
                 PublishedAt = new DateTime(2026, 3, 16),
                 CategoryId = technology.Id
             },
-            // Sport
             new Article
             {
                 Title = "Start de sezon in Formula 1, cu accent pe noile pachete tehnice",
@@ -67,7 +97,6 @@ public static class SeedData
                 PublishedAt = new DateTime(2026, 3, 18),
                 CategoryId = sport.Id
             },
-            // Cultura
             new Article
             {
                 Title = "Festivalul de film european aduce proiectii speciale si dezbateri cu regizori",
@@ -89,9 +118,6 @@ public static class SeedData
                 PublishedAt = new DateTime(2026, 3, 17),
                 CategoryId = culture.Id
             },
-
-
-            // Actualitate
             new Article
             {
                 Title = "A murit Chuck Norris. Celebrul actor si artist martial avea 86 de ani",
@@ -126,6 +152,6 @@ public static class SeedData
             }
         );
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

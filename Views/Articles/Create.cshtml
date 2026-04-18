@@ -30,14 +30,6 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="UserId" class="form-label"></label>
-        <select asp-for="UserId" asp-items="Model.Users" class="form-select">
-            <option value="">Fara autor</option>
-        </select>
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
         <label asp-for="Upload" class="form-label">Imagine</label>
         <input asp-for="Upload" class="form-control" type="file" />
     </div>

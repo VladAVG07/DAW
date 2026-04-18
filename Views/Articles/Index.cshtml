@@ -8,7 +8,10 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">Articole</h1>
-    <a asp-action="Create" class="btn btn-primary">Adauga articol</a>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <a asp-action="Create" class="btn btn-primary">Adauga articol</a>
+    }
 </div>
 
 @if (!Model.Any())

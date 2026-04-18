@@ -1,7 +1,7 @@
 using Lab06.Data;
+using Lab06.Data;
 using Lab06.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Lab06.Repositories;
 
@@ -15,7 +15,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         return await Context.Articles
             .Include(a => a.Category)
-            .Include(a => a.User)
+            .Include(a => a.Author)
             .OrderByDescending(a => a.PublishedAt)
             .ToListAsync(cancellationToken);
     }
@@ -24,7 +24,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         return await Context.Articles
             .Include(a => a.Category)
-            .Include(a => a.User)
+            .Include(a => a.Author)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
@@ -37,7 +37,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         return await Context.Articles
             .Include(a => a.Category)
-            .Include(a => a.User)
+            .Include(a => a.Author)
             .OrderByDescending(a => a.PublishedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -48,7 +48,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         return await Context.Articles
             .Include(a => a.Category)
-            .Include(a => a.User)
+            .Include(a => a.Author)
             .OrderByDescending(a => a.PublishedAt)
             .Take(count)
             .ToListAsync(cancellationToken);

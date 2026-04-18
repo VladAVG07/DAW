@@ -1,7 +1,11 @@
 using Lab06.Services;
+using Lab06.Services;
+using Lab06.Models;
 using Lab06.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace Lab06.Controllers;
 
@@ -9,16 +13,13 @@ public class ArticlesController : Controller
 {
     private readonly IArticleService _articleService;
     private readonly ICategoryService _categoryService;
-    private readonly IUserService _userService;
 
     public ArticlesController(
         IArticleService articleService,
-        ICategoryService categoryService,
-        IUserService userService)
+        ICategoryService categoryService)
     {
         _articleService = articleService;
         _categoryService = categoryService;
-        _userService = userService;
     }
 
     public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
@@ -53,6 +54,7 @@ public class ArticlesController : Controller
         return View(article);
     }
 
+    [Authorize]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
         var viewModel = new CreateArticleViewModel();
@@ -60,6 +62,7 @@ public class ArticlesController : Controller
         return View(viewModel);
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateArticleViewModel viewModel, CancellationToken cancellationToken)
@@ -75,15 +78,28 @@ public class ArticlesController : Controller
             return View(viewModel);
         }
 
-        await _articleService.CreateAsync(viewModel, cancellationToken);
+        var authorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        await _articleService.CreateAsync(viewModel, authorId, cancellationToken);
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize]
     public async Task<IActionResult> Edit(int? id, CancellationToken cancellationToken)
     {
         if (id is null)
         {
             return NotFound();
+        }
+
+        var article = await _articleService.GetEntityByIdAsync(id.Value, cancellationToken);
+        if (article is null)
+        {
+            return NotFound();
+        }
+
+        if (!IsOwnerOrAdmin(article))
+        {
+            return Forbid();
         }
 
         var viewModel = await _articleService.GetEditViewModelAsync(id.Value, cancellationToken);
@@ -97,6 +113,7 @@ public class ArticlesController : Controller
         return View(viewModel);
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, EditArticleViewModel viewModel, CancellationToken cancellationToken)
@@ -104,6 +121,17 @@ public class ArticlesController : Controller
         if (id != viewModel.Id)
         {
             return NotFound();
+        }
+
+        var article = await _articleService.GetEntityByIdAsync(id, cancellationToken);
+        if (article is null)
+        {
+            return NotFound();
+        }
+
+        if (!IsOwnerOrAdmin(article))
+        {
+            return Forbid();
         }
 
         if (viewModel.Upload is null && Request.Form.Files.Count > 0)
@@ -126,6 +154,7 @@ public class ArticlesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize]
     public async Task<IActionResult> Delete(int? id, CancellationToken cancellationToken)
     {
         if (id is null)
@@ -139,15 +168,44 @@ public class ArticlesController : Controller
             return NotFound();
         }
 
+        var articleEntity = await _articleService.GetEntityByIdAsync(id.Value, cancellationToken);
+        if (articleEntity is null)
+        {
+            return NotFound();
+        }
+
+        if (!IsOwnerOrAdmin(articleEntity))
+        {
+            return Forbid();
+        }
+
         return View(article);
     }
 
+    [Authorize]
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
+        var article = await _articleService.GetEntityByIdAsync(id, cancellationToken);
+        if (article is null)
+        {
+            return NotFound();
+        }
+
+        if (!IsOwnerOrAdmin(article))
+        {
+            return Forbid();
+        }
+
         await _articleService.DeleteAsync(id, cancellationToken);
         return RedirectToAction(nameof(Index));
+    }
+
+    private bool IsOwnerOrAdmin(Article article)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return article.AuthorId == userId || User.IsInRole("Admin");
     }
 
     private async Task LoadDropdownsAsync(CreateArticleViewModel viewModel, CancellationToken cancellationToken)
@@ -158,15 +216,6 @@ public class ArticlesController : Controller
             {
                 Value = c.Id.ToString(),
                 Text = c.Name
-            })
-            .ToList();
-
-        var users = await _userService.GetAllAsync(cancellationToken);
-        viewModel.Users = users
-            .Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = u.Name
             })
             .ToList();
     }

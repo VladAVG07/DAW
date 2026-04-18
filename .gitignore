@@ -1,4 +1,8 @@
 # Build output
+/bin/
+/obj/
+**/bin/
+**/obj/
 bin/
 obj/
 out/
@@ -11,8 +15,16 @@ out/
 *.sln.docstates
 
 # Visual Studio / VS Code
+/.vs/
 .vs/
 .vscode/
+
+# Common build artifacts
+*.cache
+*.tmp
+*.temp
+*.pdb
+*.ilk
 
 # Rider / JetBrains
 .idea/

@@ -1,5 +1,4 @@
 using Lab06.Repositories;
-using Lab06.Models;
 
 namespace Lab06.Data;
 
@@ -10,18 +9,15 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(
         AppDbContext context,
         IArticleRepository articleRepository,
-        ICategoryRepository categoryRepository,
-        IRepository<User> userRepository)
+        ICategoryRepository categoryRepository)
     {
         _context = context;
         Articles = articleRepository;
         Categories = categoryRepository;
-        Users = userRepository;
     }
 
     public IArticleRepository Articles { get; }
     public ICategoryRepository Categories { get; }
-    public IRepository<User> Users { get; }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
