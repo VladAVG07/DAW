@@ -1,5 +1,7 @@
 using Lab06.Models;
+using Lab06.Models;
 using Lab06.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +20,11 @@ public class AuthController : Controller
         _signInManager = signInManager;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult Register() => View();
 
+    [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
@@ -54,6 +58,7 @@ public class AuthController : Controller
         return View(model);
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
@@ -61,6 +66,7 @@ public class AuthController : Controller
         return View();
     }
 
+    [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
@@ -94,6 +100,14 @@ public class AuthController : Controller
 
         ModelState.AddModelError(string.Empty, "Email sau parola incorecta.");
         return View(model);
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
+        return View();
     }
 
     [HttpPost]

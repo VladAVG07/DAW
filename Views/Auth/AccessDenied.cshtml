@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h4 class="mb-2">403 - Access denied</h4>
+        <p class="mb-0">Nu ai drepturi pentru aceasta actiune.</p>
+    </div>
+    <a asp-controller="Articles" asp-action="Index" class="btn btn-primary">Inapoi la articole</a>
+</div>
